@@ -1,0 +1,101 @@
+body 
+{
+    margin: 0;
+    text-align: center;
+    background-color: #111;
+}
+
+#title
+{
+	width: 90%; 
+	padding: 5%;
+	padding-bottom: 0px;
+	font-size: 24pt; 
+	color: #bbb; 
+	text-align: left; 
+}
+
+#instructions 
+{
+	width: 90%; 
+	padding: 5%;
+	padding-top: 10px;
+	font-size: 12pt; 
+	color: #888; 
+	text-align: left; 
+}
+
+#controls
+{
+	width: 98%; 	
+	padding: 1%;
+	background-color: #222; 
+	color: #ccc; 
+	box-shadow: 0px 0px 15px #111;
+}
+
+#songChoice
+{	
+	padding-left: 1%%;	
+	margin: 2.5%;
+	
+}
+
+.slider {
+	width: 50%;	
+	background: #d3d3d3;
+	-webkit-appearance: none;
+	outline: none; 
+	height: 25px;
+	margin-bottom: 20px; 
+	margin-top: 10px; 
+	box-shadow: 0px 0px 15px #111;
+}
+.slider::-webkit-slider-thumb {
+	-webkit-appearance: none; /* Override default look */
+	appearance: none;
+	width: 25px; /* Set a specific slider handle width */
+	height: 25px; /* Slider handle height */
+	background: #444; 
+	cursor: pointer; /* Cursor on hover */
+}
+
+button
+{	
+	width: 80px;
+	height: 35px;
+	background-color: #4CAF50; 
+	border: none;
+	color: white;	
+	text-align: center;
+	text-decoration: none;		
+	cursor: pointer;
+	margin-bottom: 10px;
+	border-radius: 10px;
+}
+
+#displayText
+{
+	width: 100%;
+	padding-top: 2%;
+}
+
+.speechBubble 
+{
+	width: 21%;
+	
+	padding: 2%;
+	margin: 2%;
+	background-color: #999; 
+	
+	color: #222;
+	display: inline-block;
+	box-shadow: 0px 0px 15px #111;
+	border-radius: 10px;
+	text-align: center;
+}
+#speakerTitle
+{
+	font-weight: bold; 
+	color: #fff; 
+}

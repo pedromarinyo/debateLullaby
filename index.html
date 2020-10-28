@@ -53,21 +53,29 @@
         msg.pitch = 1; //0 to 2
     
         var instruments = [
-            "flute", 
             "soprano_sax", 
+            "overdriven_guitar", 
             "acoustic_grand_piano",
-            "pad_2_warm"
+            "cello",
+            "flute",
+            "brass_section",
+            "bird_tweet",            
+            "fx_8_scifi",
+            "gunshot",
+            "applause"
         ];
 
         var instrumentsLoaded = 0;
         var song = frereJacques; 
 
+        var wallaceInstrument = 0;
+        var trumpInstrument = 2;
+        var bidenInstrument = 1;
+
         var textDisplay; 
 
         // Canvas Fabric
-        var c;
-
-            
+        var c;    
 
         window.onload = function () {
 
@@ -98,8 +106,9 @@
                 console.log("Instruments loaded");
 
                 // Change channl 0 to first instrument                
-                MIDI.programChange(0, MIDI.GM.byName[instruments[0]].number);
+                MIDI.programChange(0, MIDI.GM.byName[instruments[wallaceInstrument]].number);
                 MIDI.programChange(1, MIDI.GM.byName[instruments[3]].number);
+                MIDI.programChange(2, MIDI.GM.byName[instruments[9]].number);
 
                 //  Make play button available
                 document.getElementById("controls").style.display = "block";
@@ -112,6 +121,9 @@
             // Setting MIDI volume
             MIDI.setVolume(0, 80);
             MIDI.setVolume(1, 65);
+            MIDI.setVolume(2, 127);
+
+            MIDI.programChange(0, MIDI.GM.byName[instruments[wallaceInstrument]].number);
 
             // Setting playback speed
             speed = 1 - (document.getElementById("speedRange").value / 100);
@@ -191,8 +203,10 @@
             // Hiding playButton and speed range, showing stopButton
             document.getElementById("playButton").style.display = "none";
             document.getElementById("speedSlider").style.display = "none";
+            document.getElementById("songChoice").style.display = "none";
             document.getElementById("stopButton").style.display = "block";  
-            document.getElementById("interruptButton").style.display = "block";        
+            document.getElementById("interruptButton").style.display = "block";  
+            document.getElementById("applaudButton").style.display = "block";        
         }        
 
         function sing()
@@ -260,7 +274,7 @@
 
             c.add(rect);     
 
-            rect.animate('top', -(60 * noteLengths[noteIndex]), {
+            rect.animate({'top': -(60 * noteLengths[noteIndex]), 'left': Math.random() * window.innerWidth}, {
                 duration: 3000,
                 onChange: c.renderAll.bind(c),
                 onComplete: function() {
@@ -301,17 +315,17 @@
             // Change speaker tone
             switch (speechJSON[speakerIndex].speaker) {
                 case "Chris Wallace":
-                    MIDI.programChange(0, MIDI.GM.byName[instruments[0]].number);
+                    MIDI.programChange(0, MIDI.GM.byName[instruments[wallaceInstrument]].number);
                     textDisplay = document.getElementById("wallaceText");
                     console.log("Changing Speaker to Wallace");
                     break;
                 case "President Donald J. Trump":             
-                    MIDI.programChange(0, MIDI.GM.byName[instruments[2]].number);
+                    MIDI.programChange(0, MIDI.GM.byName[instruments[trumpInstrument]].number);
                     textDisplay = document.getElementById("trumpText");
                     console.log("Changing Speaker to Trump");
                     break;
                 case "Vice President Joe Biden":
-                    MIDI.programChange(0, MIDI.GM.byName[instruments[1]].number);
+                    MIDI.programChange(0, MIDI.GM.byName[instruments[bidenInstrument]].number);
                     textDisplay = document.getElementById("bidenText");                    
                     console.log("Changing Speaker to Biden");
                     break;
@@ -351,6 +365,8 @@
             document.getElementById("speedSlider").style.display = "block";
             document.getElementById("stopButton").style.display = "none"; 
             document.getElementById("interruptButton").style.display = "none"; 
+            document.getElementById("applaudButton").style.display = "none"; 
+            document.getElementById("songChoice").style.display = "block";
         }
 
         function seek(value) 
@@ -362,6 +378,69 @@
         function resizeCanvas() {
             c.setWidth(window.innerWidth);
             c.setHeight(window.innerHeight);            
+        }
+
+        function changeSpeakerInstrument(speaker) {
+            switch(speaker) {
+                case "trump":
+                    trumpInstrument = parseInt(document.getElementById("trumpInstrument").value);
+                    if(speechJSON[speakerIndex].speaker == "President Donald J. Trump") {
+                        MIDI.programChange(0, MIDI.GM.byName[instruments[trumpInstrument]].number);
+                    }
+                    console.log(trumpInstrument);
+                    break;
+                case "wallace":
+                    wallaceInstrument = parseInt(document.getElementById("wallaceInstrument").value);
+                    if(speechJSON[speakerIndex].speaker == "Chris Wallace") {
+                        MIDI.programChange(0, MIDI.GM.byName[instruments[wallaceInstrument]].number);
+                    }                    
+                    console.log(wallaceInstrument);
+                    break;
+                case "biden":
+                    bidenInstrument = parseInt(document.getElementById("bidenInstrument").value);
+                    if(speechJSON[speakerIndex].speaker == "Vice President Joe Biden") {
+                        MIDI.programChange(0, MIDI.GM.byName[instruments[bidenInstrument]].number);
+                    }
+                    console.log(bidenInstrument);
+                    break;
+            }
+
+            console.log("Instrument Changed");
+        }
+
+        function applaud() {
+            // Play note
+            MIDI.noteOn(2, 60 - pitchWobble, velocity, 0);
+            MIDI.noteOff(2, 60 - pitchWobble, 5); 
+
+            // Increasing pitch wobble
+            pitchWobble += 1;
+            // Increasing static opacity
+            document.getElementById("static").style.opacity = (pitchWobble * 0.01);
+
+            // Show circle
+            var rect = new fabric.Circle({
+                left: window.innerWidth / 2,
+                top: window.innerHeight / 2,
+                fill: "#fff",
+                radius: 50,
+                //width: 50,
+                //height: 50 * noteLengths[noteIndex],
+                selectable: false,
+                originX: "center",
+                originY: "top"                            
+            });    
+
+            c.add(rect);     
+
+            rect.animate({'top': -400, 'radius': 200}, {
+                duration: 3000,
+                onChange: c.renderAll.bind(c),
+                onComplete: function() {
+                    c.remove(rect);
+                },
+                easing: fabric.util.ease["easeOutQuad"]
+            });  
         }
         
     </script>
@@ -392,12 +471,12 @@
 
     <div id="controls" style="display: none;">
 
-
         <div id="songChoice">
             <span id="speakerTitle">Lullaby</span><br><br>
             <input type="radio" name="song" value="frereJacques" checked="true"> Fr&eacute;re Jacques
             <input type="radio" name="song" value="twinkleTwinkle"> Twinkle Twinkle
             <input type="radio" name="song" value="rockabyeBaby"> Rock-a-bye Baby
+            <br><br>
         </div>
 
         <div id="speedSlider">
@@ -428,14 +507,56 @@
                 Interrupt
             </button>
         </div>
+
+        <div id="applaudButton" style="display: none;">
+            <br>
+            <button onclick="applaud()">
+                Applaud
+            </button>
+        </div>
     </div>
 
     <div id="displayText">
-        <div  class="speechBubble"><span id="speakerTitle">Trump</span><div id="trumpText"></div></div>
-        <div  class="speechBubble"><span id="speakerTitle">Wallace</span><div id="wallaceText"></div></div>
-        <div  class="speechBubble"><span id="speakerTitle">Biden</span><div id="bidenText"></div></div>
+        <div  class="speechBubble"><span id="speakerTitle">Trump</span><div id="trumpText"><br></div>
+            <select id="trumpInstrument" name="trumpInstrument" onchange="changeSpeakerInstrument('trump')">
+                <option value="0">Soprano Sax</option>
+                <option value="1">Electric Guitar</option>
+                <option value="2" selected>Piano</option>
+                <option value="3">Cello</option>
+                <option value="4">Flute</option>
+                <option value="5">Brass Section</option>
+                <option value="6">Bird Tweet</option>                
+                <option value="7">Sci-Fi</option>
+                <option value="8">Gunshot</option>
+            </select>
+        </div>
+        <div  class="speechBubble"><span id="speakerTitle">Wallace</span><div id="wallaceText"><br></div>
+            <select id="wallaceInstrument" name="wallaceInstrument" onchange="changeSpeakerInstrument('wallace')">
+                <option value="0" selected>Soprano Sax</option>
+                <option value="1">Electric Guitar</option>
+                <option value="2">Piano</option>
+                <option value="3">Cello</option>
+                <option value="4">Flute</option>
+                <option value="5">Brass Section</option>
+                <option value="6">Bird Tweet</option>                
+                <option value="7">Sci-Fi</option>
+                <option value="8">Gunshot</option>
+            </select>
+        </div>
+        <div  class="speechBubble"><span id="speakerTitle">Biden</span><div id="bidenText"><br></div>
+            <select id="bidenInstrument" name="bidenInstrument" onchange="changeSpeakerInstrument('biden')">
+                <option value="0">Soprano Sax</option>
+                <option value="1" selected>Electric Guitar</option>
+                <option value="2">Piano</option>
+                <option value="3">Cello</option>
+                <option value="4">Flute</option>
+                <option value="5">Brass Section</option>
+                <option value="6">Bird Tweet</option>                
+                <option value="7">Sci-Fi</option>
+                <option value="8">Gunshot</option>
+            </select>
+        </div>
     </div>
-   
 
 </body>
 </html>

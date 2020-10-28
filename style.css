@@ -44,25 +44,18 @@ img {
 	font-size: 12pt; 
 	color: #888; 
 	text-align: left; 
-	;
 }
 
 #controls
 {
 	width: 98%; 	
 	padding: 1%;
+	padding: 2.5% 0px;
 	background-color: #222; 
 	color: #ccc; 
 	box-shadow: 0px 0px 15px #111;
 	
 	z-index: 1;
-}
-
-#songChoice
-{	
-	padding-left: 1%%;	
-	margin: 2.5%;
-	
 }
 
 .slider {
@@ -94,8 +87,12 @@ button
 	text-align: center;
 	text-decoration: none;		
 	cursor: pointer;
-	margin-bottom: 10px;
+	margin: 0px 0px 0px 0px;
 	border-radius: 10px;
+}
+button:focus 
+{
+	outline: none;
 }
 
 #displayText
@@ -106,16 +103,20 @@ button
 
 .speechBubble 
 {
-	width: 21%;
-	
+	width: 21%;	
 	padding: 2%;
 	margin: 2%;
-	background-color: #999; 
-	
+	background-color: #999; 	
 	color: #222;
 	display: inline-block;
 	border-radius: 10px;
 	text-align: center;
+}
+.speechBubble select 
+{
+	margin-top: 10px;
+	width: 90%;
+	text-align-last: center;
 }
 #speakerTitle
 {

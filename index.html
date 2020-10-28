@@ -21,6 +21,7 @@
     <!-- utils -->
     <script src="./midi/js/util/dom_request_xhr.js" type="text/javascript"></script>
     <script src="./midi/js/util/dom_request_script.js" type="text/javascript"></script>
+    <script src="./fabric.min.js" type="text/javascript"></script>
     <script src="./Please.js" type="text/javascript"></script>
     <script src="./speechJSON.js" type="text/javascript"></script>
     <script type="text/javascript">
@@ -63,6 +64,11 @@
 
         var textDisplay; 
 
+        // Canvas Fabric
+        var c;
+
+            
+
         window.onload = function () {
 
             // Set seekRange to speechJSON max
@@ -82,9 +88,10 @@
 
             // Set text to Wallace
             textDisplay = document.getElementById("wallaceText");
-            
-        };
 
+            // Creating fabric canvas
+            c = new fabric.Canvas("canvas", {height: window.innerHeight, width: window.innerWidth, backgroundColor: "#111"});
+        }
         function checkInstrumentsLoaded() {
             if (instrumentsLoaded == instruments.length) {
                 // Output sucess message
@@ -148,7 +155,7 @@
             currentRound = 0;
             noteIndex = 0;
             textDisplay = document.getElementById("wallaceText");
-            textDisplay.style.boxShadow = "0px 0px 15px #aaa";
+            textDisplay.parentElement.style.boxShadow = "0px 0px 15px #aaa";
 
             // Calculating length of the round
             var roundLength = 0;
@@ -214,7 +221,7 @@
             else if (speechJSON[speakerIndex].speaker == "Chris Wallace") { msg.pitch -= 0.5; }
 
             speechSynthesis.speak(msg); 
-            textDisplay.innerHTML = "<span id='speakerTitle'>" + speechJSON[speakerIndex].speaker + ":</span><br>" + msg.text; 
+            textDisplay.innerHTML = msg.text; 
             // Increment speech counter
             speechIndex++;        
 
@@ -222,7 +229,45 @@
             MIDI.noteOn(0, notes[noteIndex] - pitchWobble, velocity, 0);
             MIDI.noteOff(0, notes[noteIndex] - pitchWobble, speed * noteLengths[noteIndex]); 
             // Increment note counter
-            noteIndex++;                           
+            noteIndex++;  
+
+            // Create shape on canvas
+            var rectLeft;
+            var rectColor = Please.make_color({value: (0.3 * pitchWobble) + 0.3});
+            switch(speechJSON[speakerIndex].speaker) {
+                case "President Donald J. Trump":
+                    rectLeft = window.innerWidth * .2;                    
+                    break;
+                case "Chris Wallace":
+                    rectLeft = window.innerWidth / 2;                    
+                    break;
+                case "Vice President Joe Biden":
+                    rectLeft = window.innerWidth * .8;                
+                    break;
+            }
+
+            var rect = new fabric.Circle({
+                left: rectLeft,
+                top: window.innerHeight / 2,
+                fill: rectColor,
+                radius: 30 * noteLengths[noteIndex],
+                //width: 50,
+                //height: 50 * noteLengths[noteIndex],
+                selectable: false,
+                originX: "center",
+                originY: "top"                            
+            });    
+
+            c.add(rect);     
+
+            rect.animate('top', -(60 * noteLengths[noteIndex]), {
+                duration: 3000,
+                onChange: c.renderAll.bind(c),
+                onComplete: function() {
+                    c.remove(rect);
+                },
+                easing: fabric.util.ease["easeOutQuad"]
+            });                                    
         }
 
         function playPad() 
@@ -250,10 +295,8 @@
             currentSpeechText = speechJSON[speakerIndex].text.split(" ");    
             speechIndex = 0;
 
-            // Reset borders on all
-            document.getElementById("bidenText").style.boxShadow = "none";
-            document.getElementById("trumpText").style.boxShadow = "none";
-            document.getElementById("wallaceText").style.boxShadow = "none";
+            // Remove shadow from current speaker
+            textDisplay.parentElement.style.boxShadow = "none";
 
             // Change speaker tone
             switch (speechJSON[speakerIndex].speaker) {
@@ -279,11 +322,14 @@
 
             // Hightlight speech bubble
             // textDisplay.style.border = "thick solid #fff";
-            textDisplay.style.boxShadow = "0px 0px 15px #aaa";
+            textDisplay.parentElement.style.boxShadow = "0px 0px 15px #aaa";
 
             // Change background color
-            var randomColor = Please.make_color({value: .25});
-            document.getElementsByTagName("BODY")[0].style.backgroundColor = randomColor;
+            var randomColor = Please.make_color({value: (0.1 * pitchWobble) + 0.15});
+            c.setBackgroundColor(randomColor);
+
+            // Increasing static opacity
+            document.getElementById("static").style.opacity = (pitchWobble * 0.01);
 
             // Adding wobbble
             pitchWobble += addWobble;
@@ -312,13 +358,24 @@
             speakerIndex = value;
             nextSpeaker(0);
         }
+
+        function resizeCanvas() {
+            c.setWidth(window.innerWidth);
+            c.setHeight(window.innerHeight);            
+        }
         
     </script>
 
 </head>
 
-<body>
+<body onresize="resizeCanvas()">
     
+    <img id="static" src="./static.gif">
+
+    <div id="canvas-wrapper">
+        <canvas id="canvas"></canvas>
+    </div>
+
     <div id="title">
         Debate Is (Not) a Lullaby
     </div>
@@ -330,6 +387,8 @@
         Press the <i>Interrupt</i> button to interrupt the current speaker and move on to the next. Every interruption introduces a random element of dissonance.<br><br>
         Once discordant, there is no re-harmonizing. Luckily, you can <i>refresh</i> your browser.
     </div>
+
+
 
     <div id="controls" style="display: none;">
 
@@ -372,9 +431,9 @@
     </div>
 
     <div id="displayText">
-        <div id="trumpText" class="speechBubble"><span id="speakerTitle">President Donald J. Trump:</span></div>
-        <div id="wallaceText" class="speechBubble"><span id="speakerTitle">Chris Wallace:</span></div>
-        <div id="bidenText" class="speechBubble"><span id="speakerTitle">Vice President Joe Biden:</span></div>
+        <div  class="speechBubble"><span id="speakerTitle">Trump</span><div id="trumpText"></div></div>
+        <div  class="speechBubble"><span id="speakerTitle">Wallace</span><div id="wallaceText"></div></div>
+        <div  class="speechBubble"><span id="speakerTitle">Biden</span><div id="bidenText"></div></div>
     </div>
    
 

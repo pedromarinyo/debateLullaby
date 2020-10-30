@@ -98,7 +98,7 @@
             textDisplay = document.getElementById("wallaceText");
 
             // Creating fabric canvas
-            c = new fabric.Canvas("canvas", {height: window.innerHeight, width: window.innerWidth, backgroundColor: "#111"});
+            c = new fabric.Canvas("canvas", {height: window.innerHeight, width: window.innerWidth, backgroundColor: "#000"});
         }
         function checkInstrumentsLoaded() {
             if (instrumentsLoaded == instruments.length) {
@@ -112,6 +112,7 @@
 
                 //  Make play button available
                 document.getElementById("controls").style.display = "block";
+                document.getElementById("loading").style.display = "none"; 
             }
         }
         
@@ -206,7 +207,7 @@
             document.getElementById("songChoice").style.display = "none";
             document.getElementById("stopButton").style.display = "block";  
             document.getElementById("interruptButton").style.display = "block";  
-            document.getElementById("applaudButton").style.display = "block";        
+            document.getElementById("applaudButton").style.display = "block";                 
         }        
 
         function sing()
@@ -467,7 +468,9 @@
         Once discordant, there is no re-harmonizing. Luckily, you can <i>refresh</i> your browser.
     </div>
 
-
+    
+    <img id="loading" src="loading.gif">
+    
 
     <div id="controls" style="display: none;">
 

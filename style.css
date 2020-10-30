@@ -15,7 +15,7 @@ body
 	z-index: -2;
 }
 
-img {
+#static {
 	position: fixed;
 	top: 0px;
 	left: 0px;
@@ -24,6 +24,10 @@ img {
 	
 	z-index: -1;
 	opacity: 0.0;
+}
+
+#loading {
+	width: 20px;
 }
 
 #title
